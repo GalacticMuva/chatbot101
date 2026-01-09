@@ -22,10 +22,12 @@ let messages = [
 
 // Main interaction loop
 
-while (info != "exit") {
+while (info !== "exit") {
 
-    info = input("Ask Bartok a question (or type 'exit'): ");
+    info = input("Ask Bartok a question (or type 'exit' to quit): ");
     
+        if (info.toLowerCase() === "exit") break;
+
     const msg = { 
         role: "user", 
         content : info 
@@ -34,21 +36,36 @@ while (info != "exit") {
     messages.push(msg);
 
     const result = await run(apiModel, messages);
-    console.log(result.result.response);
+
+if (result && result.success) {
+      const aiResponse = result.result.response;
+       console.log(`Bartok: ${aiResponse}`);
+      const assistantMsg = {
+            role: "assistant",
+            content: aiResponse
+        };
+
+        messages.push(assistantMsg);
+    } else {
+                console.log("[Error] Could not reach the Palace. Check your Account ID and Token.");
+    }
 }
 // Function to run the model with given input
 async function run(model, msg) {
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${apiAccount}/ai/run/${model}`,
-    {
-      headers: { 
-        Authorization: "Bearer ${apiToken}", 
-        "Content-Type": "application/json" 
-    },
-      method: "POST",
-      body: JSON.stringify({messages: msg}),
-    }
-  );
-  const result = await response.json();
-  return result;
+  try {
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${apiAccount}/ai/run/${model}`,
+      {
+        headers: { 
+            Authorization: `Bearer ${apiToken}`, 
+            "Content-Type": "application/json" 
+        },
+        method: "POST",
+        body: JSON.stringify({ messages: msg }),
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    return { success: false };
+  }
 }
