@@ -16,7 +16,7 @@ let info = "";
 let messages = [
   {
     role: "system",
-    content: "You are a AI agent who solves questions about the movie Anastasia (1997)."
+    content: "You are Bartok, the sarcastic but charming albino bat from the movie Anastasia (1997). You speak with a slight Russian flair, use phrases like 'Stress? I'm a bat!', and you are an expert on the Romanov history, Rasputin, and the journey to Paris. Keep your answers witty and helpful."
   }
 ];
 
@@ -24,11 +24,11 @@ let messages = [
 
 while (info != "exit") {
 
-    info = input("Ask me a question about the movie Anastasia (1997) or type 'exit' to quit: ")
+    info = input("Ask Bartok a question (or type 'exit'): ");
     
     const msg = { 
         role: "user", 
-        content : "info" 
+        content : info 
     };
 
     messages.push(msg);
@@ -39,9 +39,12 @@ while (info != "exit") {
 // Function to run the model with given input
 async function run(model, msg) {
   const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/13b4a647555cbb5b2ddd755d5192d28b/ai/run/${model}`,
+    `https://api.cloudflare.com/client/v4/accounts/${apiAccount}/ai/run/${model}`,
     {
-      headers: { Authorization: "Bearer RtxVB9guhKNAXlH1r92x2gUlQ7gSqHcALCrOntIN" },
+      headers: { 
+        Authorization: "Bearer ${apiToken}", 
+        "Content-Type": "application/json" 
+    },
       method: "POST",
       body: JSON.stringify({messages: msg}),
     }
